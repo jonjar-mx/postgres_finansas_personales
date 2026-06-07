@@ -1,0 +1,13 @@
+.env
+*.dump
+*.backup
+*.bak
+*.sql.gz
+*.tar
+*.tgz
+*.zip
+postgres_data/
+pgdata/
+data/
+*.log
+.DS_Store
