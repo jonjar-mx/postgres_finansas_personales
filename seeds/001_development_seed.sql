@@ -1,9 +1,11 @@
 WITH inserted_user AS (
-  INSERT INTO users (email, display_name, password_hash)
-  VALUES ('demo@finanzas.local', 'Demo User', 'pbkdf2_sha256$210000$yWWKOHcyVACpovsrgv5Fww$DU8i3y_ulk3Z9dRUQ3TUsc8N0Tm5uJMJi_GaRIfD2TY')
+  INSERT INTO users (email, display_name, password_hash, role, status)
+  VALUES ('demo@finanzas.local', 'Demo User', 'pbkdf2_sha256$210000$Cy6WxqDrlKpcXh74Xl2IsQ$3tLbTsS0bhJEZZFlmJuuhmqjHsVoGkWz4GPceanm9kM', 'admin', 'active')
   ON CONFLICT (email) DO UPDATE
     SET display_name = EXCLUDED.display_name,
-        password_hash = COALESCE(users.password_hash, EXCLUDED.password_hash)
+        password_hash = COALESCE(users.password_hash, EXCLUDED.password_hash),
+        role = 'admin',
+        status = 'active'
   RETURNING id
 ),
 category_seed (name, color, icon, sort_order) AS (
