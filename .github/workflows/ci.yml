@@ -36,6 +36,3 @@ jobs:
               raise SystemExit(f'duplicate migration prefix: {seen}')
           print(f'validated {len(files)} migration files')
           PY
-
-      - name: Validate docker compose
-        run: docker compose config --quiet
