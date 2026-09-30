@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate migration filenames
+        run: |
+          test -d migrations
+          find migrations -maxdepth 1 -type f -name '*.sql' | sort
+          python3 - <<'PY'
+          from pathlib import Path
+          files=sorted(Path('migrations').glob('*.sql'))
+          if not files:
+              raise SystemExit('no migration files found')
+          seen=[]
+          for path in files:
+              prefix=path.name.split('_',1)[0]
+              if not prefix.isdigit():
+                  raise SystemExit(f'migration does not start with numeric prefix: {path}')
+              seen.append(int(prefix))
+          if len(seen) != len(set(seen)):
+              raise SystemExit(f'duplicate migration prefix: {seen}')
+          print(f'validated {len(files)} migration files')
+          PY
+
+      - name: Validate docker compose
+        run: docker compose config --quiet

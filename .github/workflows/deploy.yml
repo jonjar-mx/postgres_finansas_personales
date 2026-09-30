@@ -1,0 +1,25 @@
+name: Deploy DB metadata to Green
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: green-db-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy Green DB metadata
+        run: |
+          ssh \
+            -i /home/runner/.ssh/prod_deploy_ed25519 \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            deploy@192.168.1.232 db
